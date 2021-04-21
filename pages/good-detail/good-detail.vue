@@ -1,18 +1,77 @@
 <template>
-	<view>
-		商品详情
+	<view class="goods_detail">
+		<!-- 轮播图 -->
+		<swiper indicator-dots circular>
+			<swiper-item v-for="(item, index) in humimages" :key="index">
+				<image :src="item.sec"></image>
+			</swiper-item>
+		</swiper>
+		<!-- 价格以及介绍 -->
+		<view class="box1">
+			<view class="price">
+				<text>￥{{info.sell_price}}</text>
+				<text>￥{{info.market_price}}</text>
+			</view>
+			<view class="goods_name">{{info.title}}</view>
+		</view>
+		<view class="line"></view>
+		<view class="box2">
+			<view>货号:{{info.goods_no}}</view>
+			<view>库存:{{info.stock_quantity}}</view>
+		</view>
+		<view class="line"></view>
+		<view class="box3">
+			<view class="tit">详情介绍</view>
+			<view class="content">
+				<rich-text :nodes="desc.content"></rich-text>
+			</view>
+		</view>
+		<view class="goods_nav">
+			<uni-goods-nav :fill="true" :options="options" :buttonGroup="buttonGroup" @click="onClick"
+				@buttonClick="buttonClick" />
+		</view>
+
 	</view>
 </template>
 
 <script>
+	import uniGoodsNav from '@/components/uni-goods-nav/uni-goods-nav.vue'
 	export default {
 		data() {
 			return {
 				id: null,
-				humimages: null, //商品详情轮播图
-				info: null, //商品详情中的价格、库存等信息
-				desc: null, //商品详情的图文描述内容
+				humimages: [], //商品详情轮播图
+				info: {}, //商品详情中的价格、库存等信息
+				desc: {}, //商品详情的图文描述内容
+				options: [{
+					icon: 'headphones',
+					text: '客服'
+				}, {
+					icon: 'shop',
+					text: '店铺',
+					// info: 2,
+					infoBackgroundColor: '#007aff',
+					infoColor: "red"
+				}, {
+					icon: 'cart',
+					text: '购物车',
+					info: 1
+				}],
+				buttonGroup: [{
+						text: '加入购物车',
+						backgroundColor: '#ff0000',
+						color: '#fff'
+					},
+					{
+						text: '立即购买',
+						backgroundColor: '#ffa200',
+						color: '#fff'
+					}
+				]
 			}
+		},
+		components: {
+			uniGoodsNav,
 		},
 		onLoad(arg) {
 			this.id = arg.id;
@@ -24,37 +83,55 @@
 		methods: {
 			//获取商品详情轮播图数据
 			async gethumimages() {
-				const {data: humimages} = await this.$myRequest({
-					url: '/goods/getdesc/' + this.id
+				const {
+					data: humimages
+				} = await this.$myRequest({
+					url: '/getthumimages/' + this.id
 				});
 				this.humimages = humimages.message;
 				console.log(this.humimages);
 			},
-			
+
 			//获取商品详情中的价格、库存等信息
 			async getinfo() {
-				const {data: info} = await this.$myRequest({
+				const {
+					data: info
+				} = await this.$myRequest({
 					url: '/goods/getinfo/' + this.id
 				});
-				this.info = info.message;
+				this.info = info.message[0];
 				console.log(this.info);
 			},
-			
+
 			//获取商品详情的图文描述内容
 			async getdesc() {
-				const {data: desc} = await this.$myRequest({
+				const {
+					data: desc
+				} = await this.$myRequest({
 					url: '/goods/getdesc/' + this.id
 				});
-				this.desc = desc.message;
+				this.desc = desc.message[0];
 				console.log(this.desc);
 			},
+			onClick(e) {
+				uni.showToast({
+					title: `点击${e.content.text}`,
+					icon: 'none'
+				})
+			},
+			buttonClick(e) {
+				console.log(e)
+				this.options[2].info++
+				uni.showToast({
+					title: `${e.content.text}`,
+				})
+			}
 		}
 	}
 </script>
 
-<style>
-	<style lang="scss">
-.goods_detail {
+<style lang="scss">
+	.goods_detail {
 		swiper {
 			height: 700rpx;
 
@@ -106,7 +183,6 @@
 				padding: 10px;
 				font-size: 28rpx;
 				color: #333;
-				line-height: 50rpx;
 			}
 		}
 	}

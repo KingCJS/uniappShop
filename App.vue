@@ -47,5 +47,11 @@
 	  content: "\e60d";
 	}
 	
+	/* 详情页图文描述图片大小 */
+	.gomeImgLoad {
+		width: 750rpx;
+		height: auto;
+	}
+	
 
 </style>
